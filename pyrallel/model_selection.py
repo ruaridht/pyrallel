@@ -36,7 +36,7 @@ def gini(actual, pred):
     return gini_sum / len(actual)
 
 @interactive
-def compute_evaluation(model, cv_split_filename, params=None,
+def compute_evaluation(model, cv_split_filename, gini=None, params=None,
                        train_size=1.0, mmap_mode='r',
                        scoring=None, dump_model=False,
                        dump_predictions=False, dump_folder='.'):
@@ -143,7 +143,7 @@ class RandomizedGridSeach(TaskManager):
             for cv_split_filename in cv_split_filenames:
                 task = self.lb_view.apply(
                     compute_evaluation,
-                    model, cv_split_filename, params=params)
+                    model, cv_split_filename, gini=gini, params=params)
                 task_group.append(task)
 
             self.task_groups.append(task_group)
