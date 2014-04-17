@@ -21,7 +21,19 @@ from pyrallel.mmap_utils import warm_mmap_on_cv_splits
 from pyrallel.mmap_utils import persist_cv_splits
 
 
+def gini(actual, pred):
+    assert( len(actual) == len(pred) )
 
+    all_vals = np.asarray(np.c_[ actual, pred, np.arange(len(actual)) ],
+                          dtype=np.float)
+    all_vals = all_vals[ np.lexsort((all_vals[:,2], -1*all_vals[:,1])) ]
+
+    total_losses = all_vals[:,0].sum()
+
+    gini_sum = all_vals[:,0].cumsum().sum() / total_losses
+    gini_sum -= (len(actual) + 1) / 2.
+
+    return gini_sum / len(actual)
 
 @interactive
 def compute_evaluation(model, cv_split_filename, params=None,
@@ -58,10 +70,14 @@ def compute_evaluation(model, cv_split_filename, params=None,
     train_time = time() - tick
 
     # Compute score on training set
-    train_score = model.score(X_train, y_train)
+    # train_score = model.score(X_train, y_train)
+    y_pred_train = model.predict_proba(X_train)
+    train_score = gini(y_train, y_pred_train)
 
     # Compute score on test set
-    test_score = model.score(X_test, y_test)
+    # test_score = model.score(X_test, y_test)
+    y_pred_test = model.predict_proba(X_test)
+    test_score = gini(y_test, y_pred_test)
 
     # Wrap evaluation results in a simple tuple datastructure
     return (test_score, train_score, train_time,
