@@ -72,12 +72,12 @@ def compute_evaluation(model, cv_split_filename, gini=None, params=None,
     # Compute score on training set
     # train_score = model.score(X_train, y_train)
     y_pred_train = model.predict_proba(X_train)
-    train_score = gini(y_train, y_pred_train)
+    train_score = gini(y_train, y_pred_train[:,1])
 
     # Compute score on test set
     # test_score = model.score(X_test, y_test)
     y_pred_test = model.predict_proba(X_test)
-    test_score = gini(y_test, y_pred_test)
+    test_score = gini(y_test, y_pred_test[:,1])
 
     # Wrap evaluation results in a simple tuple datastructure
     return (test_score, train_score, train_time,
